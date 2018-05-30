@@ -113,14 +113,25 @@ namespace FakeCamera.Controllers
                 var notificationJson = JsonConvert.SerializeObject(notification);
                 var notificationBytes = Encoding.UTF8.GetBytes(notificationJson);
 
-                // SERVICEBUS QUEUE
+                //// SERVICEBUS QUEUE
 
-                var queueClient = new QueueClient(
-                    _configuration["ServiceBusQueueConnectionString"], "cameras");
+                //var queueClient = new QueueClient(
+                //    _configuration["ServiceBusQueueConnectionString"], "cameras");
+
+                //var message = new Message(notificationBytes);
+
+                //await queueClient.SendAsync(message);
+
+                // SERVICE BUS TOPIC
+
+                var topicClient = new TopicClient(
+                    _configuration["ServiceBusQueueConnectionString"],
+                    "camerastopic");
 
                 var message = new Message(notificationBytes);
 
-                await queueClient.SendAsync(message);
+                await topicClient.SendAsync(message);
+
             }
 
             return View();
