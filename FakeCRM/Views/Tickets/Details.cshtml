@@ -1,0 +1,37 @@
+﻿@model FakeCRM.Models.TicketDetailsDto
+
+@{
+    ViewData["Title"] = "Details";
+}
+
+<h2>Details</h2>
+
+<div>
+    <h4>TicketDetailsDto</h4>
+    <hr />
+    <dl class="dl-horizontal">
+        <dt>
+            @Html.DisplayNameFor(model => model.Id)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Id)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.CameraName)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.CameraName)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.ImageUri)
+        </dt>
+        <dd>
+            <a href="@Model.ImageUri" target="_blank">
+                <img src="@Model.ImageUri" />
+            </a>
+        </dd>
+    </dl>
+</div>
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>

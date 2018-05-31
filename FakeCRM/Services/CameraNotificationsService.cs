@@ -1,4 +1,5 @@
-﻿using Microsoft.Azure.ServiceBus;
+﻿using Microsoft.Azure.Documents.Client;
+using Microsoft.Azure.ServiceBus;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Newtonsoft.Json;
@@ -35,14 +36,38 @@ namespace FakeCRM.Services
                     var json = Encoding.UTF8.GetString(bytes);
                     var content = JsonConvert.DeserializeObject<JObject>(json);
 
-                    var id = content.Value<Guid>("id");
-                    var cameraName = content.Value<string>("cameraName");
-                    var imageUri = content.Value<string>("imageUri");
+                    var id = Guid.Parse(content.Value<string>("Id"));
+                    var cameraName = content.Value<string>("CameraName");
+                    var imageUri = content.Value<string>("ImageUri");
+
+                    var documentClient =
+                        new DocumentClient(
+                            new Uri(_configuration["CosmosDbUri"]),
+                            _configuration["CosmosDbKey"]
+                        );
+
+                    var db = documentClient
+                        .CreateDatabaseQuery()
+                        .ToList()
+                        .SingleOrDefault(xx => xx.Id == "fakecrm");
+
+                    var coll = documentClient
+                        .CreateDocumentCollectionQuery(db.SelfLink)
+                        .ToList()
+                        .SingleOrDefault(xx => xx.Id == "docs");
+
+                    var result = await documentClient.CreateDocumentAsync(
+                        new Uri(coll.SelfLink, UriKind.Relative),
+                        new {
+                            id, imageUri, cameraName
+                        }
+                    );
 
                     await _subscriptionClient.CompleteAsync(m.SystemProperties.LockToken);
                 },
-                new Func<ExceptionReceivedEventArgs, Task>(async (e) => {
-                }));
+                async (e) => { 
+
+                });
             return Task.CompletedTask;
         }
 
